@@ -10,7 +10,7 @@ Portable builds of [pi](https://github.com/earendil-works/pi) 1.5.0. Extract, ru
 | `PiPortable-darwin-arm64.tar.gz` | macOS Apple Silicon | `bash` |
 | `PiPortable-darwin-x64.tar.gz` | macOS Intel | `bash` |
 
-Download from [Releases](../../releases). Check against `SHA256SUMS`.
+Download from [Releases](../../releases). Check against `SHA256SUMS`. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ## What a package contains
 
@@ -36,7 +36,7 @@ Patches applied at build time:
 
 ## CI
 
-`.github/workflows/build.yml` builds all packages on every push and PR and uploads them as the `PiPortable` artifact. A smoke test then runs each package on Windows, Linux x64, Linux arm64 and macOS arm64 runners. Pushing a tag `v*` also publishes a GitHub release with every package and `SHA256SUMS`.
+`.github/workflows/build.yml` builds all packages on every push and PR and uploads them as the `PiPortable` artifact. A smoke test then runs each package on Windows, Linux x64, Linux arm64 and macOS arm64 runners. Pushing a tag `v*` also publishes a GitHub release with every package and `SHA256SUMS`. The release notes are the matching section of `CHANGELOG.md`; the tag build fails if that section is missing.
 
 ## Updating
 

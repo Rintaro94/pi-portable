@@ -34,6 +34,8 @@ Những chỗ dễ vỡ khi cập nhật (đã kiểm chứng ở bản 1.5.0):
 ```
 .github/workflows/build.yml   CI: build mọi target, smoke test trên từng OS, tag v* thì tạo release
 scripts/build.sh              tải nguồn theo sources.lock, kiểm checksum, build, đóng gói
+scripts/release-notes.py      in mục CHANGELOG.md của một tag (CI dùng làm release notes)
+CHANGELOG.md                  ghi chú từng release, viết cho người dùng
 sources.lock                  <tên file> <url> <checksum>, mọi đầu vào đều ghim
 launcher/main.go              logic chung của launcher
 launcher/platform_*.go        phần riêng Windows và Unix
@@ -164,6 +166,8 @@ Nên làm khi đổi version pi hoặc launcher:
   ```
 
 ## 6. Phát hành
+
+Trước khi tag, thêm mục mới lên đầu `CHANGELOG.md` với tiêu đề đúng dạng `## v1.6.0 - YYYY-MM-DD`. CI lấy nguyên mục này làm release notes (`scripts/release-notes.py`). Nếu thiếu, CI dừng ngay và không tạo release. Viết cho người dùng: có gói gì, thay đổi gì, cần làm gì khi nâng cấp, còn giới hạn gì. Xem `python3 scripts/release-notes.py v1.6.0` để kiểm tra trước.
 
 ```bash
 git add -A && git commit -m "Update pi to 1.6.0"
