@@ -20,13 +20,23 @@ func TestCompareVersions(t *testing.T) {
 		{"v1.5.0-2", "v1.5.0-2", 0},
 		{"v1.5.0", "dev", 1},
 		{"unknown", "v0.0.1", -1},
+		// dated tags vX.Y.Z.YYMMDD
+		{"v1.5.0.261110", "v1.5.0-2", 1},
+		{"v1.5.0.261110", "v1.5.0", 1},
+		{"v1.5.0.270101", "v1.5.0.261231", 1}, // new year still sorts later
+		{"v1.5.0.261201", "v1.5.0.261130", 1}, // new month too
+		{"v1.5.1.261110", "v1.5.0.261231", 1}, // pi version wins over date
+		{"v1.5.0.261110", "v1.5.0.261110", 0},
+		{"v1.6.0-2", "v1.5.0.261231", 1},
 	}
 	for _, c := range cases {
 		if got := compareVersions(c.a, c.b); got != c.want {
 			t.Errorf("compareVersions(%q, %q) = %d, want %d", c.a, c.b, got, c.want)
 		}
 	}
-	for _, bad := range []string{"1.5.0", "v1.5", "v1.5.0-", "v1.5.0-0", "v1.x.0", "v1.5.0-rc1"} {
+	for _, bad := range []string{"1.5.0", "v1.5", "v1.5.0-", "v1.5.0-0", "v1.x.0", "v1.5.0-rc1",
+		"v1.5.0.2611", "v1.5.0.26111", "v1.5.0.2611100", "v1.5.0.261310", "v1.5.0.261100", "v1.5.0.261132",
+		"v1.5.0.261110-2", "v1.5.0.261110.1", "v01.5.0.261110", "v1.5.0-261110", "1.5.0.261110", "v1.5.0.+61110", "v1.5.0.-61110", "v+1.5.0.261110"} {
 		if _, ok := parseVersion(bad); ok {
 			t.Errorf("parseVersion(%q) accepted", bad)
 		}

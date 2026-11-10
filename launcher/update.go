@@ -557,8 +557,10 @@ func readVersion(root string) string {
 	return strings.TrimSpace(string(data))
 }
 
-// parseVersion reads vMAJOR.MINOR.PATCH[-BUILD]. A missing BUILD counts as 1,
-// so v1.5.0 < v1.5.0-2 < v1.6.0.
+// parseVersion reads vMAJOR.MINOR.PATCH.YYMMDD, where MAJOR.MINOR.PATCH is
+// the pi version and YYMMDD the build date. It also reads the older
+// vMAJOR.MINOR.PATCH[-N] tags (v1.5.0, v1.5.0-2); a missing N counts as 1.
+// N is always below 260101, so v1.5.0 < v1.5.0-2 < v1.5.0.261110 < v1.6.0.261101.
 func parseVersion(v string) ([4]int, bool) {
 	var out [4]int
 	s, ok := strings.CutPrefix(v, "v")
@@ -567,7 +569,8 @@ func parseVersion(v string) ([4]int, bool) {
 	}
 	core, build, hasBuild := strings.Cut(s, "-")
 	parts := strings.Split(core, ".")
-	if len(parts) != 3 {
+	dated := len(parts) == 4
+	if (len(parts) != 3 && !dated) || (dated && hasBuild) {
 		return out, false
 	}
 	for i, p := range parts {
@@ -575,15 +578,27 @@ func parseVersion(v string) ([4]int, bool) {
 		if err != nil || n < 0 {
 			return out, false
 		}
+		// No leading zeros or signs in MAJOR.MINOR.PATCH. YYMMDD is checked below.
+		if i < 3 && p != strconv.Itoa(n) {
+			return out, false
+		}
 		out[i] = n
 	}
-	out[3] = 1
-	if hasBuild {
+	switch {
+	case dated:
+		d := parts[3]
+		month, day := out[3]/100%100, out[3]%100
+		if len(d) != 6 || strings.Trim(d, "0123456789") != "" || month < 1 || month > 12 || day < 1 || day > 31 {
+			return out, false
+		}
+	case hasBuild:
 		n, err := strconv.Atoi(build)
-		if err != nil || n < 1 {
+		if err != nil || n < 1 || n >= 260101 {
 			return out, false
 		}
 		out[3] = n
+	default:
+		out[3] = 1
 	}
 	return out, true
 }

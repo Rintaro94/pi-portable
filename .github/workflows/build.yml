@@ -1,11 +1,21 @@
 name: build
 
+# Builds and smoke-tests every package. Pushes to main and releases run it
+# through release.yml, the daily upstream check through upstream.yml.
+# It never sees the signing key.
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: "commit or branch to build (default: the triggering commit)"
+        type: string
+        default: ""
+      version:
+        description: release tag written to VERSION, or "dev"
+        type: string
+        default: dev
 
 permissions:
   contents: read
@@ -15,10 +25,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
-      - name: Check CHANGELOG.md has notes for this tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: python3 scripts/release-notes.py "$GITHUB_REF_NAME" > /dev/null
+      - name: Check CHANGELOG.md has notes for this version
+        if: inputs.version != '' && inputs.version != 'dev'
+        run: python3 scripts/release-notes.py "${{ inputs.version }}" > /dev/null
 
       - uses: actions/setup-go@v5
         with:
@@ -39,7 +51,7 @@ jobs:
 
       - name: Build
         env:
-          VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'dev' }}
+          VERSION: ${{ inputs.version || 'dev' }}
         run: bash scripts/build.sh
 
       - uses: actions/upload-artifact@v4
@@ -97,43 +109,3 @@ jobs:
           cat VERSION
           if [ "${{ matrix.target }}" = windows-x64 ]; then ls update.bat; else test -x update.sh; fi
 
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build, smoke]
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: PiPortable
-          path: dist
-
-      - name: Sign SHA256SUMS
-        env:
-          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
-        run: |
-          if [ -z "$RELEASE_SIGNING_KEY" ]; then
-            echo "::error::secret RELEASE_SIGNING_KEY is not set; 'pi update' refuses unsigned releases"; exit 1
-          fi
-          umask 077; key=$RUNNER_TEMP/release-key.pem
-          printf '%s\n' "$RELEASE_SIGNING_KEY" > "$key"
-          openssl pkeyutl -sign -inkey "$key" -rawin -in dist/SHA256SUMS -out dist/SHA256SUMS.sig
-          # The signature must verify against the public key built into the launcher.
-          pub=$(sed -n 's/^var releasePublicKey = "\(.*\)"$/\1/p' launcher/update.go)
-          { printf '\x30\x2a\x30\x05\x06\x03\x2b\x65\x70\x03\x21\x00'; echo "$pub" | base64 -d; } > "$RUNNER_TEMP/pub.der"
-          openssl pkeyutl -verify -pubin -keyform DER -inkey "$RUNNER_TEMP/pub.der" -rawin \
-            -in dist/SHA256SUMS -sigfile dist/SHA256SUMS.sig
-          rm -f "$key"
-
-      - name: Release notes from CHANGELOG.md
-        run: python3 scripts/release-notes.py "$GITHUB_REF_NAME" > notes.md
-
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "$GITHUB_REF_NAME" dist/PiPortable-* dist/SHA256SUMS dist/SHA256SUMS.sig \
-            --repo "$GITHUB_REPOSITORY" --title "Pi Portable $GITHUB_REF_NAME" --notes-file notes.md

@@ -34,7 +34,7 @@ A lock file in `tmp/` stops the update while any pi from the folder is running, 
 bash scripts/build.sh                 # all targets
 bash scripts/build.sh linux-x64       # one target
 # -> dist/PiPortable-<target>.{zip,tar.gz}, dist/SHA256SUMS
-VERSION=v1.5.0-3 SIGNING_KEY_FILE=key.pem bash scripts/build.sh   # also writes dist/SHA256SUMS.sig
+VERSION=v1.5.0.261110 SIGNING_KEY_FILE=key.pem bash scripts/build.sh   # also writes dist/SHA256SUMS.sig
 ```
 
 Needs bash, curl, tar, unzip, python3 and Go (version in `launcher/go.mod`). Every input is pinned with a checksum in `sources.lock`; the build fails on any mismatch.
@@ -42,9 +42,13 @@ Needs bash, curl, tar, unzip, python3 and Go (version in `launcher/go.mod`). Eve
 Patches applied at build time:
 - `patches/cliproxy_prompt.py`: the cliproxyapi login prompt shows `https://example.com` as the sample URL instead of pre-filling the last saved one.
 
-## CI
+## CI and releases
 
-`.github/workflows/build.yml` builds all packages on every push and PR and uploads them as the `PiPortable` artifact. A smoke test then runs each package on Windows, Linux x64, Linux arm64 and macOS arm64 runners. Pushing a tag `v*` also signs `SHA256SUMS` with the `RELEASE_SIGNING_KEY` secret and publishes a GitHub release with every package, `SHA256SUMS` and `SHA256SUMS.sig`. The release notes are the matching section of `CHANGELOG.md`; the tag build fails if that section is missing.
+- `build.yml` builds every package and smoke-tests it on Windows, Linux x64, Linux arm64 and macOS arm64. It runs on pull requests and is called by the two workflows below.
+- `upstream.yml` runs daily at 02:17 UTC (`scripts/upstream.py`). A new pi release is taken at once. Plugins, pi-themes, fd and ripgrep are taken once they have been public for 3 days. If anything changed, it commits to the branch `upstream/auto`, builds it, and opens a pull request with the new tag `v<pi version>.<YYMMDD>` and a CHANGELOG section.
+- `release.yml` runs on every push to `main`. If the top section of `CHANGELOG.md` names a tag that is not released yet, it builds, waits for approval in the `release` environment, signs `SHA256SUMS` with the environment secret `RELEASE_SIGNING_KEY`, and publishes the GitHub release with the tag.
+
+To release: merge the pull request (or push a commit with a new CHANGELOG section), then approve the waiting deployment in the Actions tab.
 
 ## Updating
 

@@ -1,0 +1,111 @@
+# Daily check of pi and the bundled components (scripts/upstream.py).
+# pi is taken as soon as it is released; plugins, pi-themes, fd and ripgrep
+# only once they have been public for 3 days. Changes go to the branch
+# upstream/auto, are built and smoke-tested, then proposed in a pull request.
+# Merging it starts release.yml, which waits for approval before publishing.
+name: upstream
+
+on:
+  schedule:
+    - cron: "17 2 * * *"   # 02:17 UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream
+  cancel-in-progress: false
+
+env:
+  BRANCH: upstream/auto
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      state: ${{ steps.update.outputs.state }}
+      tag: ${{ steps.update.outputs.tag }}
+      sha: ${{ steps.push.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tags, to compare with the last release
+
+      - id: update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/upstream.py update --summary summary.md
+          cat summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upstream-summary
+          path: summary.md
+
+      - id: push
+        if: steps.update.outputs.state == 'changed'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add sources.lock config/settings.json CHANGELOG.md README.md package/
+          git commit -m "Update bundled components (${{ steps.update.outputs.tag }})"
+          git push --force origin "$BRANCH"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: check
+    if: needs.check.outputs.state == 'changed'
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ needs.check.outputs.sha }}
+      version: ${{ needs.check.outputs.tag }}
+
+  pull-request:
+    needs: [check, build]
+    if: always() && needs.check.outputs.state == 'changed'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.check.outputs.tag }}
+      BUILD: ${{ needs.build.result }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: upstream-summary
+
+      - name: Open or update the pull request
+        run: |
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ "$BUILD" = success ]; then
+            status="Build and smoke test on Windows, Linux x64, Linux arm64 and macOS arm64 passed ([run]($run_url))."
+          else
+            status="**Build or smoke test: $BUILD.** Do not merge. See the [run]($run_url)."
+          fi
+          {
+            echo "Automatic update from the daily upstream check."
+            echo
+            echo "$status"
+            echo
+            cat summary.md
+            echo
+            echo "Before merging:"
+            echo "- Read the release notes of each changed component."
+            echo "- Check the items under \"Check before merging\", if any."
+            echo "- Merging starts the release workflow. It publishes \`$TAG\` only after approval in the \`release\` environment."
+          } > body.md
+          title="Release $TAG: update bundled components"
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file body.md
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" --body-file body.md
+          fi
+          [ "$BUILD" = success ]

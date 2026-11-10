@@ -5,3 +5,4 @@ auth.json
 cliproxyapi.json
 cliproxyapi-models.json
 sessions/
+__pycache__/

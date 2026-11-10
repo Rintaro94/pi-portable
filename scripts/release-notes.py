@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Print the CHANGELOG.md section for one release tag.
 
-    python3 scripts/release-notes.py v1.5.0-2 > notes.md
+    python3 scripts/release-notes.py v1.5.0.261110 > notes.md
     python3 scripts/release-notes.py --list        # tags that have a section
 
 A section starts at a line "## <tag> - <date>" and ends at the next "## ".

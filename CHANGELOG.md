@@ -1,10 +1,12 @@
 # Changelog
 
-Each release is named after the pi version it ships. A `-N` suffix marks a later build of the same pi version, for changes to packaging, plugins or the launcher.
+Releases are tagged `vX.Y.Z.YYMMDD`: the pi version they ship, then the build date (UTC). A new pi version changes `X.Y.Z`; updates to plugins, packaging or the launcher only change the date. Releases before v1.5.0.261110 used `vX.Y.Z-N`.
 
-## v1.5.0-3 - 2026-11-10
+## v1.5.0.261110 - 2026-11-10
 
 Adds `pi update`, which installs a newer release into the same folder and keeps your login and history. pi itself and the plugins are unchanged.
+
+Release tags change from `v1.5.0-2` to `v<pi version>.<YYMMDD>`, so this release is `v1.5.0.261110`. New releases can come out daily when a bundled component updates.
 
 ### Downloads
 

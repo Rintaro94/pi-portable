@@ -34,7 +34,10 @@ Những chỗ dễ vỡ khi cập nhật (đã kiểm chứng ở bản 1.5.0):
 ## 2. Cấu trúc repo
 
 ```
-.github/workflows/build.yml   CI: build mọi target, smoke test trên từng OS, tag v* thì tạo release
+.github/workflows/build.yml   build mọi target + smoke test trên từng OS (PR, và được 2 workflow dưới gọi)
+.github/workflows/upstream.yml  kiểm tra upstream hằng ngày, mở PR nhánh upstream/auto
+.github/workflows/release.yml   push lên main: build; nếu CHANGELOG có tag mới thì chờ duyệt, ký, phát hành
+scripts/upstream.py           kiểm tra và cập nhật sources.lock, viết mục CHANGELOG, kiểm tra tag
 scripts/build.sh              tải nguồn theo sources.lock, kiểm checksum, build, đóng gói
 scripts/release-notes.py      in mục CHANGELOG.md của một tag (CI dùng làm release notes)
 CHANGELOG.md                  ghi chú từng release, viết cho người dùng
@@ -67,6 +70,24 @@ Gói `.tar.gz` được đặt quyền theo danh sách cố định trong `packa
 Thư mục làm việc mặc định là `.work/` (đổi bằng `WORK_DIR=...`). File tải về được giữ lại ở `.work/dl/` và chỉ tải lại khi checksum không khớp.
 
 ## 4. Quy trình cập nhật
+
+### 4.0 Cập nhật tự động hằng ngày
+
+Thường không phải làm tay mục 4.1, 4.2, 4.4. Workflow `upstream.yml` chạy mỗi ngày lúc 02:17 UTC (bấm *Run workflow* để chạy ngay) và gọi `scripts/upstream.py update`:
+
+- pi: lấy release mới nhất ngay khi có (bỏ qua prerelease). Đổi theo cùng version `pi-ai`, rồi `pi-telemetry` và `partial-json` theo đúng version pi-ai ghim. Nếu pi-ai cùng version chưa lên npm thì chờ.
+- Plugin npm, pi-themes (nhánh `main`), fd, ripgrep: lấy bản mới nhất **đã public ít nhất 3 ngày**. Bản trẻ hơn được ghi vào mục "Waiting".
+- Sửa `sources.lock`, `lastChangelogVersion`, `extensionChangelogVersions`, version trong README, rồi thêm mục `## vX.Y.Z.YYMMDD` vào `CHANGELOG.md`.
+- Commit lên nhánh `upstream/auto` (ghi đè mỗi ngày), build + smoke test, mở hoặc cập nhật PR. PR có mục "Check before merging" khi: `peerDependencies` của plugin không nhận version pi mới, pi-ai thêm dependency, thiếu file cho một target.
+
+Việc của bạn:
+1. Đọc PR: release notes của từng thành phần, mục "Check before merging". Với pi mới, làm bước 5 của mục 4.1. Có thể sửa thêm trên nhánh `upstream/auto` trước khi merge (job ngày hôm sau sẽ ghi đè nhánh này nếu PR chưa merge).
+2. Merge. `release.yml` build lại commit trên `main` rồi dừng ở bước chờ duyệt.
+3. Actions → run `release` → *Review deployments* → Approve. CI ký, tạo tag và GitHub Release.
+
+Chạy thử ở máy local, không sửa file: `python3 scripts/upstream.py update --dry-run`.
+
+Mỗi ngày tối đa một release (tag theo ngày). Nếu tag của hôm nay đã có, script dừng với `state=skipped` và để ngày mai. Nếu PR mở từ hôm trước chưa merge, mục CHANGELOG tự động được thay bằng mục mới (giữ một mục cho một release).
 
 ### 4.1 Cập nhật pi lên version mới
 
@@ -154,9 +175,9 @@ Khi sửa `update.go` hoặc `lock_*.go`, chạy `go test ./...` trong `launcher
 ```bash
 # build bản "cũ" và bản "mới" có ký
 VERSION=v1.5.0-2 bash scripts/build.sh linux-x64 && cp dist/PiPortable-linux-x64.tar.gz /tmp/old.tar.gz
-VERSION=v1.5.0-3 SIGNING_KEY_FILE=.work/release-signing-key.pem bash scripts/build.sh linux-x64
-mkdir -p /tmp/srv/v1.5.0-3 && cp dist/PiPortable-linux-x64.tar.gz dist/SHA256SUMS dist/SHA256SUMS.sig /tmp/srv/v1.5.0-3/
-echo v1.5.0-3 > /tmp/srv/latest.txt
+VERSION=v1.5.0.261110 SIGNING_KEY_FILE=.work/release-signing-key.pem bash scripts/build.sh linux-x64
+mkdir -p /tmp/srv/v1.5.0.261110 && cp dist/PiPortable-linux-x64.tar.gz dist/SHA256SUMS dist/SHA256SUMS.sig /tmp/srv/v1.5.0.261110/
+echo v1.5.0.261110 > /tmp/srv/latest.txt
 python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/srv &
 export PI_PORTABLE_UPDATE_SOURCE=http://127.0.0.1:8765
 # giải nén /tmp/old.tar.gz, thêm auth.json/sessions giả, chạy ./PiPortable/update.sh --yes
@@ -191,7 +212,12 @@ Nên làm khi đổi version pi hoặc launcher:
 
 ## 6. Phát hành
 
-`pi update` chỉ cài release có `SHA256SUMS.sig` đúng. CI ký bằng secret `RELEASE_SIGNING_KEY` (Settings → Secrets and variables → Actions), chứa nguyên file PEM private key ed25519. Thiếu secret thì job `release` dừng. CI kiểm lại chữ ký với `releasePublicKey` trong `update.go` trước khi publish.
+Thiết lập một lần (Settings của repo GitHub):
+- **Environments → New environment `release`**: bật *Required reviewers* (chọn tài khoản của bạn), bỏ chọn *Prevent self-review* nếu bạn tự duyệt. *Deployment branches*: chỉ `main`.
+- Trong environment `release` → *Environment secrets*: tạo `RELEASE_SIGNING_KEY` chứa nguyên file PEM private key ed25519. Để secret ở environment, không để ở repo, để chỉ job đã được duyệt mới đọc được.
+- **Actions → General → Workflow permissions**: bật *Allow GitHub Actions to create and approve pull requests* (để `upstream.yml` mở PR).
+
+`pi update` chỉ cài release có `SHA256SUMS.sig` đúng. Job `release` ký bằng `RELEASE_SIGNING_KEY`, thiếu secret thì dừng. Nó kiểm lại chữ ký với `releasePublicKey` trong `update.go` trước khi publish.
 
 Khóa hiện tại: private `.work/release-signing-key.pem` (không commit, `.work/` bị ignore), public `.work/release-signing-key.pub`. Giữ bản sao private key ở nơi an toàn: mất key thì các bản đã phát hành không update được nữa, người dùng phải tải gói mới bằng tay. Lộ key thì người khác có thể phát hành bản update giả nếu chiếm được repo.
 
@@ -202,18 +228,24 @@ openssl pkey -in .work/release-signing-key.pem -pubout -outform DER | tail -c 32
 ```
 Sửa `releasePublicKey` trong `update.go`, cập nhật secret, phát hành bản mới. Các bản cũ vẫn tin key cũ, nên người dùng phải tải bản mới này bằng tay một lần và ghi rõ điều đó trong CHANGELOG.
 
-Trước khi tag, thêm mục mới lên đầu `CHANGELOG.md` với tiêu đề đúng dạng `## v1.6.0 - YYYY-MM-DD`. CI lấy nguyên mục này làm release notes (`scripts/release-notes.py`). Nếu thiếu, CI dừng ngay và không tạo release. Viết cho người dùng: có gói gì, thay đổi gì, cần làm gì khi nâng cấp, còn giới hạn gì. Xem `python3 scripts/release-notes.py v1.6.0` để kiểm tra trước.
+Quy ước tag: `vX.Y.Z.YYMMDD`. `X.Y.Z` là version pi trong `sources.lock`, `YYMMDD` là ngày build (UTC). Ví dụ `v1.6.0.261115`. Chỉ đổi plugin, launcher hay đóng gói thì giữ `X.Y.Z`, đổi ngày. Launcher so sánh từng số, nên `v1.5.0.270101` mới hơn `v1.5.0.261231`. Các tag cũ `v1.5.0`, `v1.5.0-2` vẫn được hiểu và luôn cũ hơn tag theo ngày cùng version pi. Không dùng DDMMYY: ngày đầu tháng sẽ bị coi là cũ hơn ngày cuối tháng trước.
 
-```bash
-git add -A && git commit -m "Update pi to 1.6.0"
-git push origin main            # CI build, kiểm tra tab Actions xanh
-git tag -a v1.6.0 -m "Pi Portable 1.6.0"
-git push origin v1.6.0          # CI build, smoke test, ký, rồi tạo GitHub Release kèm mọi gói + SHA256SUMS + SHA256SUMS.sig
-```
+Không push tag bằng tay. Release được tạo bởi `release.yml`:
 
-Quy ước tag: dùng version pi (`v1.6.0`). Nếu chỉ đổi plugin hoặc launcher mà giữ version pi, thêm hậu tố: `v1.6.0-2`, `v1.6.0-3`.
+1. Thêm mục mới lên đầu `CHANGELOG.md`, tiêu đề đúng dạng `## v1.6.0.261115 - 2026-11-15`. Mục này là release notes. Viết cho người dùng: có gói gì, thay đổi gì, cần làm gì khi nâng cấp, còn giới hạn gì. Kiểm tra: `python3 scripts/release-notes.py v1.6.0.261115` và `python3 scripts/upstream.py verify-tag v1.6.0.261115`.
+2. Commit và push lên `main` (hoặc merge PR).
+   ```bash
+   git add -A && git commit -m "Release v1.6.0.261115"
+   git push origin main
+   ```
+3. `release.yml` đọc tag ở mục đầu CHANGELOG. Nếu tag chưa có release: build, smoke test, chờ duyệt ở environment `release`, rồi ký và tạo tag + GitHub Release (mọi gói + `SHA256SUMS` + `SHA256SUMS.sig`). Nếu tag đã có release (push bình thường không đổi CHANGELOG), chỉ build và test.
+4. Actions → run `release` → *Review deployments* → Approve.
+
+Cần phát hành 2 lần trong một ngày (hiếm, ví dụ vá lỗi gấp)? Tag ngày hôm sau. `verify-tag` từ chối tag không mới hơn release mới nhất.
 
 Gói build trên CI có hash khác gói build ở máy khác nếu một bên không build trong git repo: Go nhúng commit vào launcher (`go version -m pi` để xem). Các file còn lại giống hệt nhau.
+
+GitHub tắt workflow `schedule` của repo public sau 60 ngày không có commit. Nếu tab Actions báo `upstream` bị disable, bấm *Enable workflow*.
 
 Release trước v1.5.0-2 chỉ có `PiPortable.zip` (Windows). Từ v1.5.0-2, tên file theo target: `PiPortable-windows-x64.zip`, `PiPortable-linux-x64.tar.gz`, ...
 
