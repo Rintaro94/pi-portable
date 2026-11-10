@@ -1,0 +1,19 @@
+{
+  "lastChangelogVersion": "1.5.0",
+  "theme": "tokyo-night-authentic",
+  "packages": [
+    "./git/github.com/sting8k/pi-themes",
+    "./git/github.com/sting8k/pi-droid-styling",
+    "./git/github.com/sting8k/pi-vcc",
+    "./npm/node_modules/@router-for-me/pi-cliproxyapi-provider"
+  ],
+  "defaultTools": ["read", "powershell", "edit", "write"],
+  "enableInstallTelemetry": false,
+  "hideThinkingBlock": true,
+  "defaultThinkingLevel": "high",
+  "transport": "websocket-cached",
+  "extensionChangelogVersions": {
+    "{\"source\":\"./git/github.com/sting8k/pi-droid-styling\",\"scope\":\"user\"}": "3.0.0",
+    "{\"source\":\"./git/github.com/sting8k/pi-vcc\",\"scope\":\"user\"}": "0.11.2"
+  }
+}

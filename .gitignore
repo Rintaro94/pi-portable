@@ -1,0 +1,7 @@
+.work/
+dist/
+# never commit runtime state from a test run
+auth.json
+cliproxyapi.json
+cliproxyapi-models.json
+sessions/

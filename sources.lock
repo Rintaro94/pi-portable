@@ -1,0 +1,12 @@
+# Pinned inputs for the portable build: <dest-file> <url> <checksum>
+# sha256:<hex> or sha512-<base64> (npm integrity format).
+pi-windows-x64.zip https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-windows-x64.zip sha256:12d58a70e80b16ba9f764950b7a42bdeb07959495c0db68396cf2988c0b71af3
+fd.zip https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-pc-windows-msvc.zip sha256:7edac75ef96b7e9a01ebb251a21ee86ea365a09adcfb865f1ec3346a906153b6
+rg.zip https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip sha256:71b2fef860abe467217a538ff31de02f5258807c0129f771846f87bd029aafc5
+pi-themes.tgz https://codeload.github.com/sting8k/pi-themes/tar.gz/9df900d148a8c910992c205c7e924485f680309e sha256:5958918cfa9ac43075df7ad4f1312ea08cc13ed7b001d0a54bab6f10e3c55e9b
+pi-droid-styling.tgz https://registry.npmjs.org/@sting8k/pi-droid-styling/-/pi-droid-styling-3.0.0.tgz sha512-6J9wRaEKoRZdhPc+4KR9T8ak5zbn+qSEP9ZU0YgFWpJC7v8agLhIzi20dqDaZvQao/mnxbNj9gd9czxomMENRQ==
+pi-vcc.tgz https://registry.npmjs.org/@sting8k/pi-vcc/-/pi-vcc-0.11.2.tgz sha512-KLWHilX6PJo+7961lRDNxY2+X1LPSMSL5a1+yoR0VKVnci0ZwRGysRiF6qsnX0dcCfc2Nbzg3cGW4m69YypjkQ==
+pi-cliproxyapi-provider.tgz https://registry.npmjs.org/@router-for-me/pi-cliproxyapi-provider/-/pi-cliproxyapi-provider-1.4.25.tgz sha512-uaeCCbv+2oZPPiTKFSdIYnG2CN6LF9MYP701JlWSGTaumb9lES9rUC4OODgg+NqBZgITXd4Sii2NcujMAnpI9Q==
+pi-ai.tgz https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-1.5.0.tgz sha512-VeWxNqTHSqRCf8AcY/6kvNwh+neRL6MPxZPePVztIQy6qqK9MR/YoCSN/ZgDnIyCD3pqEXgRyQbzk4KV4uvjbg==
+pi-telemetry.tgz https://registry.npmjs.org/@earendil-works/pi-telemetry/-/pi-telemetry-1.5.0.tgz sha512-VW3tcVdnNfl/Vk8wHPTzZdKkxcsCOM12ppiO4DXnd9wMxUCmOfLt/wvUnWeKWbTVlVSRg0uqKtnnhE2UCsG2Bw==
+partial-json.tgz https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA==

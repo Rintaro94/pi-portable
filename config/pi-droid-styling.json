@@ -1,0 +1,23 @@
+{
+  "alwaysExpanded": false,
+  "maxExpandedLines": 50,
+  "dimToolOutput": false,
+  "customWorkingMessage": {
+    "working": "Working",
+    "thinking": "Thinking",
+    "answering": "Answering",
+    "running": "Cooking"
+  },
+  "presentationStyle": "droid",
+  "userZoneStyle": "gemini",
+  "inputBox": {
+    "style": "auto"
+  },
+  "tasksWidgetStyle": "compact",
+  "forceOSC11": false,
+  "visibleChatTail": 30,
+  "collapsedThinking": "tail",
+  "transparentBackground": false,
+  "diffMode": "auto",
+  "imageAttachments": true
+}
