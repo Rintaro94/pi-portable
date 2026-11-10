@@ -27,6 +27,6 @@ Patches applied at build time:
 
 `.github/workflows/build.yml` builds the zip on every push and PR and uploads it as the `PiPortable` artifact. Pushing a tag `v*` also publishes a GitHub release with the zip and its sha256.
 
-## Updating a component
+## Updating
 
-Change the URL and checksum in `sources.lock`. For npm packages use `npm view <pkg>@<ver> dist.tarball dist.integrity`.
+Follow [MAINTAINING.md](MAINTAINING.md): design constraints, how to bump pi or a plugin, the test checklist, and how to publish a release.
