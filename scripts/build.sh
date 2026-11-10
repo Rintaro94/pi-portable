@@ -7,6 +7,8 @@
 # Output:  dist/PiPortable-windows-x64.zip, dist/PiPortable-<os>-<arch>.tar.gz, dist/SHA256SUMS
 # Needs:   bash, curl, tar, unzip, python3, go (version in launcher/go.mod)
 # Env:     WORK_DIR (default ./.work) for downloads and temp files.
+#          VERSION  release tag written to PiPortable/VERSION (default: git describe, else "dev")
+#          SIGNING_KEY_FILE  ed25519 private key (PEM); if set, writes dist/SHA256SUMS.sig
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
@@ -15,6 +17,8 @@ DL=$WORK/dl
 DIST=$REPO/dist
 export TMPDIR=$WORK/tmp GOTELEMETRY=off
 mkdir -p "$DL" "$TMPDIR" "$DIST"
+VERSION=${VERSION:-$(git -C "$REPO" describe --tags --exact-match 2>/dev/null || echo dev)}
+echo "version: $VERSION"
 
 ALL_TARGETS="windows-x64 linux-x64 linux-arm64 darwin-x64 darwin-arm64"
 TARGETS=${*:-$ALL_TARGETS}
@@ -113,10 +117,13 @@ p = sys.argv[1]; d = json.load(open(p))
 d["defaultTools"] = ["read", "powershell", "edit", "write"]
 open(p, "w").write(json.dumps(d, indent=2) + "\n")
 EOF
-    cp "$REPO/PACKAGE_README.windows.txt" "$out/README.txt"
+    cp "$REPO/package/README.windows.txt" "$out/README.txt"
+    cp "$REPO/package/update.bat" "$out/update.bat"
   else
-    cp "$REPO/PACKAGE_README.unix.txt" "$out/README.txt"
+    cp "$REPO/package/README.unix.txt" "$out/README.txt"
+    install -m 0755 "$REPO/package/update.sh" "$out/update.sh"
   fi
+  printf '%s\n' "$VERSION" > "$out/VERSION"
 
   # Package with fixed timestamps and permissions for reproducible output.
   if [ "$os" = windows ]; then
@@ -152,7 +159,7 @@ package_tar() { # stage-dir output
   python3 - "$1" "$2" <<'EOF'
 import gzip, os, sys, tarfile
 src, dst = sys.argv[1], sys.argv[2]
-EXEC = {"PiPortable/pi", "PiPortable/app/pi",
+EXEC = {"PiPortable/pi", "PiPortable/app/pi", "PiPortable/update.sh",
         "PiPortable/home/.pi/agent/bin/fd", "PiPortable/home/.pi/agent/bin/rg"}
 def norm(ti):
     ti.uid = ti.gid = 0; ti.uname = ti.gname = ""; ti.mtime = 1767225600  # 2026-01-01
@@ -178,5 +185,11 @@ EOF
 
 for t in $TARGETS; do build_target "$t"; done
 
-(cd "$DIST" && sha256sum PiPortable-* | grep -v SHA256SUMS > SHA256SUMS && cat SHA256SUMS)
+(cd "$DIST" && rm -f SHA256SUMS.sig && sha256sum PiPortable-* > SHA256SUMS && cat SHA256SUMS)
+if [ -n "${SIGNING_KEY_FILE:-}" ]; then
+  # Raw ed25519 signature (64 bytes) over SHA256SUMS; the launcher checks it
+  # against the public key built into launcher/update.go.
+  openssl pkeyutl -sign -inkey "$SIGNING_KEY_FILE" -rawin -in "$DIST/SHA256SUMS" -out "$DIST/SHA256SUMS.sig"
+  echo "signed: dist/SHA256SUMS.sig"
+fi
 du -sh "$DIST"/PiPortable-*

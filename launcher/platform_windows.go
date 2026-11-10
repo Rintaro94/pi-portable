@@ -13,6 +13,11 @@ import (
 
 const coreName = "pi.exe"
 
+const (
+	exeSuffix    = ".exe"
+	updateScript = "update.bat"
+)
+
 // Windows environment names are case-insensitive.
 func envKey(name string) string { return strings.ToUpper(name) }
 

@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,13 +13,15 @@ import (
 )
 
 // Package-management subcommands are disabled: the portable build only ships
-// the bundled plugins and must not touch npm/git or replace its own binary.
+// the bundled plugins and must not touch npm/git. `update` is handled by the
+// launcher itself (update.go) and replaces the whole package.
 var blockedCommands = map[string]bool{
 	"install":   true,
 	"remove":    true,
 	"uninstall": true,
-	"update":    true,
 }
+
+var errUpdating = errors.New("an update is running in this folder; wait for it to finish")
 
 func fail(format string, a ...any) {
 	fmt.Fprintf(os.Stderr, "pi-portable: "+format+"\n", a...)
@@ -37,7 +40,15 @@ func main() {
 
 	args := os.Args[1:]
 	if len(args) > 0 && blockedCommands[strings.ToLower(args[0])] {
-		fail("'%s' is disabled in Pi Portable. Plugins are fixed; to upgrade, download a new package.", args[0])
+		fail("'%s' is disabled in Pi Portable. Plugins are fixed per release; run 'pi update' to get a newer package.", args[0])
+	}
+
+	tmp := filepath.Join(root, "tmp")
+	if err := os.MkdirAll(tmp, 0o755); err != nil {
+		fail("cannot create %s: %v", tmp, err)
+	}
+	if len(args) > 0 && strings.ToLower(args[0]) == "update" {
+		os.Exit(runUpdate(root, args[1:]))
 	}
 
 	core := filepath.Join(root, "app", coreName)
@@ -47,7 +58,6 @@ func main() {
 
 	home := filepath.Join(root, "home")
 	agent := filepath.Join(home, ".pi", "agent")
-	tmp := filepath.Join(root, "tmp")
 
 	overrides := map[string]string{
 		"PI_CODING_AGENT_DIR":   agent,
@@ -88,5 +98,8 @@ func main() {
 		env = append(env, k+"="+v)
 	}
 
+	if err := holdRunLock(root); err != nil {
+		fail("%v", err)
+	}
 	run(core, args, env)
 }

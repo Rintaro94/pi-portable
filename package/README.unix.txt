@@ -11,14 +11,23 @@ Run
 
 Layout
   pi            launcher: sets environment variables, then execs app/pi
+  update.sh     downloads and installs the latest release into this folder
+  VERSION       version of this package
   app/          official pi release, unmodified
   home/         fake HOME, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_DATA_HOME, XDG_STATE_HOME
     .pi/agent/  all settings, auth.json, sessions, plugins
   tmp/          TMPDIR
 
 Bundled plugins: pi-themes, pi-droid-styling, pi-vcc, pi-cliproxyapi-provider.
-The install / remove / update commands are disabled. To upgrade, download a
-new package and copy home/.pi/agent/auth.json and sessions/ across.
+The install / remove commands are disabled; plugins are fixed per release.
+
+Update
+  - Close every pi started from this folder, then run ./PiPortable/update.sh
+    (or: ./PiPortable/pi update). Check only: ./PiPortable/pi update --check
+  - Downloads the new release from GitHub Releases, checks its signature and
+    checksum, then replaces app/, the plugins and the launcher. auth.json,
+    sessions/, your settings (theme, model, ...) and plugin config are kept.
+  - The old files go to backup/<version>/. Delete it once the new version works.
 
 The model uses the bash tool. Pi uses /bin/bash, or bash on PATH, or sh.
 

@@ -14,7 +14,9 @@ Cách đạt được:
   - Chung: `PI_CODING_AGENT_DIR=home/.pi/agent`, `HOME=home/`, `TMPDIR=tmp/`, `PI_SKIP_VERSION_CHECK=1`, `PI_TELEMETRY=0`.
   - Windows (`platform_windows.go`): thêm `USERPROFILE`, `HOMEDRIVE`, `HOMEPATH`, `APPDATA` → `home\AppData\Roaming`, `LOCALAPPDATA` → `home\AppData\Local`, `TEMP`, `TMP`. Chạy pi làm tiến trình con, bỏ qua Ctrl+C để chờ và trả đúng exit code.
   - Linux/macOS (`platform_unix.go`): thêm `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` trỏ vào `home/`. Dùng `exec` thay tiến trình launcher bằng pi, nên tín hiệu và job control đi thẳng tới pi.
-- Launcher chặn `install`, `remove`, `uninstall`, `update`. Plugin cố định theo gói, nâng cấp bằng cách phát hành gói mới.
+- Launcher chặn `install`, `remove`, `uninstall`. Plugin cố định theo gói, nâng cấp bằng cách phát hành gói mới.
+- `pi update` do launcher tự xử lý (`launcher/update.go`), không gọi lệnh `update` của pi. Nó lấy release mới nhất trên GitHub, kiểm chữ ký ed25519 của `SHA256SUMS` bằng public key nhúng trong `update.go` (`releasePublicKey`), kiểm checksum gói, rồi chuyển các đường dẫn trong `managedPaths()` sang `backup/<version cũ>/` và đặt bản mới vào. Mọi thứ khác trong `home/` là của người dùng và được giữ. Với `settings.json`, chỉ các khóa trong `managedSettings` lấy theo bản mới, còn lại giữ của người dùng. Nếu thêm file hoặc thư mục do gói quản lý, phải thêm vào `managedPaths()`.
+- Lock `tmp/.pi-portable.lock`: mỗi pi đang chạy giữ lock chia sẻ (Unix: `flock LOCK_SH`, fd được giữ qua `exec`; Windows: handle mở với share read/write). Update lấy lock độc quyền, nên update bị từ chối khi có pi đang chạy và pi không khởi động được khi đang update.
 - `app/` là nguyên bản release chính thức của pi cho từng nền tảng, không sửa. Đây là binary Bun, đã nhúng sẵn pi-ai, pi-tui, typebox. Riêng plugin, config và pi-ai đi kèm là giống nhau ở mọi target.
 - Plugin nằm đúng chỗ một bản cài thường đặt chúng (`home\.pi\agent\git\...` và `home\.pi\agent\npm\node_modules\...`) nhưng được khai báo trong `config/settings.json` bằng đường dẫn tương đối `./...`. Pi coi chúng là local package nên không bao giờ gọi git hay npm.
 - Windows: build script thêm `defaultTools: [read, powershell, edit, write]` vào settings, vì máy Windows thường không có bash. Không đóng gói Git Bash. Linux/macOS dùng mặc định của pi (tool `bash`). Không đặt `defaultTools` trong `config/settings.json`, vì file này dùng chung.
@@ -39,10 +41,13 @@ CHANGELOG.md                  ghi chú từng release, viết cho người dùng
 sources.lock                  <tên file> <url> <checksum>, mọi đầu vào đều ghim
 launcher/main.go              logic chung của launcher
 launcher/platform_*.go        phần riêng Windows và Unix
+launcher/update.go            pi update: tải, kiểm chữ ký + checksum, thay gói, giữ dữ liệu người dùng
+launcher/lock_*.go            lock giữa pi đang chạy và update
 config/                       settings.json + config mặc định của plugin, chép vào home/.pi/agent/
 patches/cliproxy_prompt.py    đổi mẫu URL khi /login cliproxyapi thành https://example.com
-PACKAGE_README.windows.txt    README đi kèm bản Windows (đổi tên thành README.txt)
-PACKAGE_README.unix.txt       README đi kèm bản Linux/macOS
+package/README.windows.txt    README đi kèm bản Windows (đổi tên thành README.txt)
+package/README.unix.txt       README đi kèm bản Linux/macOS
+package/update.bat, update.sh chạy `pi update`, chép vào gốc gói
 ```
 
 Trong `sources.lock`, file có dạng `<tên>@<target>` (ví dụ `pi@linux-arm64`) chỉ dùng cho target đó. File không có `@` (plugin, pi-ai) dùng chung.
@@ -144,6 +149,25 @@ ls tmp/pi-cliproxyapi-provider/     # có openai-codex-responses-cpa-*.mjs → p
 
 Bản Windows: giải nén `PiPortable-windows-x64.zip` rồi chạy các lệnh tương tự với `./pi.exe` (trong PowerShell, Git Bash hoặc WSL).
 
+Khi sửa `update.go` hoặc `lock_*.go`, chạy `go test ./...` trong `launcher/` và test update thật với một server local:
+
+```bash
+# build bản "cũ" và bản "mới" có ký
+VERSION=v1.5.0-2 bash scripts/build.sh linux-x64 && cp dist/PiPortable-linux-x64.tar.gz /tmp/old.tar.gz
+VERSION=v1.5.0-3 SIGNING_KEY_FILE=.work/release-signing-key.pem bash scripts/build.sh linux-x64
+mkdir -p /tmp/srv/v1.5.0-3 && cp dist/PiPortable-linux-x64.tar.gz dist/SHA256SUMS dist/SHA256SUMS.sig /tmp/srv/v1.5.0-3/
+echo v1.5.0-3 > /tmp/srv/latest.txt
+python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/srv &
+export PI_PORTABLE_UPDATE_SOURCE=http://127.0.0.1:8765
+# giải nén /tmp/old.tar.gz, thêm auth.json/sessions giả, chạy ./PiPortable/update.sh --yes
+```
+
+Cần thử: gói bị sửa, `SHA256SUMS` bị sửa, ký bằng key khác, thiếu `.sig` (đều phải bị từ chối, VERSION giữ nguyên); update khi có pi đang chạy (bị từ chối); mở pi trong lúc lock bị giữ độc quyền (`flock -x -n tmp/.pi-portable.lock -c './pi --version'` phải báo "an update is running").
+
+**Cẩn thận khi test với pi chạy nền**, nhất là khi chính bạn là một agent chạy trong pi:
+- Không dùng `pkill pi`, `pgrep -x pi | xargs kill` hay `pkill -f ...`. Lệnh theo tên sẽ giết luôn pi đang chạy session (đã từng xảy ra), `pkill -f` còn khớp cả shell đang chạy lệnh. Chỉ kill PID có `/proc/<pid>/exe` trỏ đúng vào `app/pi` của bản test.
+- Không cho pi đọc stdin từ `/dev/zero`. Pi và `script` sẽ ăn hết RAM (đã làm WSL bị OOM). Dùng `sleep 120 | timeout 120 script -qfc './pi --offline' /dev/null`.
+
 Nên làm khi đổi version pi hoặc launcher:
 - Mở pi, `/login` cliproxyapi, kiểm tra màn hình nhập URL hiện `https://example.com`. Chat thử và nhờ model chạy một lệnh (PowerShell trên Windows, bash trên Linux/macOS).
 - Kiểm tra không ghi ra ngoài:
@@ -167,13 +191,24 @@ Nên làm khi đổi version pi hoặc launcher:
 
 ## 6. Phát hành
 
+`pi update` chỉ cài release có `SHA256SUMS.sig` đúng. CI ký bằng secret `RELEASE_SIGNING_KEY` (Settings → Secrets and variables → Actions), chứa nguyên file PEM private key ed25519. Thiếu secret thì job `release` dừng. CI kiểm lại chữ ký với `releasePublicKey` trong `update.go` trước khi publish.
+
+Khóa hiện tại: private `.work/release-signing-key.pem` (không commit, `.work/` bị ignore), public `.work/release-signing-key.pub`. Giữ bản sao private key ở nơi an toàn: mất key thì các bản đã phát hành không update được nữa, người dùng phải tải gói mới bằng tay. Lộ key thì người khác có thể phát hành bản update giả nếu chiếm được repo.
+
+Đổi khóa (khi lộ hoặc mất):
+```bash
+openssl genpkey -algorithm ed25519 -out .work/release-signing-key.pem
+openssl pkey -in .work/release-signing-key.pem -pubout -outform DER | tail -c 32 | base64   # -> releasePublicKey
+```
+Sửa `releasePublicKey` trong `update.go`, cập nhật secret, phát hành bản mới. Các bản cũ vẫn tin key cũ, nên người dùng phải tải bản mới này bằng tay một lần và ghi rõ điều đó trong CHANGELOG.
+
 Trước khi tag, thêm mục mới lên đầu `CHANGELOG.md` với tiêu đề đúng dạng `## v1.6.0 - YYYY-MM-DD`. CI lấy nguyên mục này làm release notes (`scripts/release-notes.py`). Nếu thiếu, CI dừng ngay và không tạo release. Viết cho người dùng: có gói gì, thay đổi gì, cần làm gì khi nâng cấp, còn giới hạn gì. Xem `python3 scripts/release-notes.py v1.6.0` để kiểm tra trước.
 
 ```bash
 git add -A && git commit -m "Update pi to 1.6.0"
 git push origin main            # CI build, kiểm tra tab Actions xanh
 git tag -a v1.6.0 -m "Pi Portable 1.6.0"
-git push origin v1.6.0          # CI build, smoke test, rồi tạo GitHub Release kèm mọi gói + SHA256SUMS
+git push origin v1.6.0          # CI build, smoke test, ký, rồi tạo GitHub Release kèm mọi gói + SHA256SUMS + SHA256SUMS.sig
 ```
 
 Quy ước tag: dùng version pi (`v1.6.0`). Nếu chỉ đổi plugin hoặc launcher mà giữ version pi, thêm hậu tố: `v1.6.0-2`, `v1.6.0-3`.

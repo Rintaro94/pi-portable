@@ -2,6 +2,44 @@
 
 Each release is named after the pi version it ships. A `-N` suffix marks a later build of the same pi version, for changes to packaging, plugins or the launcher.
 
+## v1.5.0-3 - 2026-11-10
+
+Adds `pi update`, which installs a newer release into the same folder and keeps your login and history. pi itself and the plugins are unchanged.
+
+### Downloads
+
+| File | Platform | Shell tool for the model |
+|---|---|---|
+| `PiPortable-windows-x64.zip` | Windows x64 | `powershell` |
+| `PiPortable-linux-x64.tar.gz` | Linux x86_64 (glibc) | `bash` |
+| `PiPortable-linux-arm64.tar.gz` | Linux aarch64 (glibc) | `bash` |
+| `PiPortable-darwin-arm64.tar.gz` | macOS, Apple Silicon | `bash` |
+| `PiPortable-darwin-x64.tar.gz` | macOS, Intel | `bash` |
+
+Check downloads against `SHA256SUMS`. `SHA256SUMS.sig` is its ed25519 signature.
+
+### Added
+
+- `pi update`, plus `update.bat` (Windows) and `update.sh` (Linux, macOS) that run it. It downloads the latest release for your platform from GitHub, checks the signature on `SHA256SUMS` and the package checksum, then replaces the launcher, `app` and the bundled plugins.
+- `pi update --check` only reports whether a newer release exists. `pi update --yes` skips the confirmation prompt.
+- The update keeps `auth.json`, `sessions`, plugin config and your own settings such as theme and default model. The replaced files go to `backup/<old version>/`; delete that folder once the new version works.
+- A `VERSION` file in the package root shows which release you have.
+
+### Changed
+
+- `update` is no longer blocked. `install`, `remove` and `uninstall` still are.
+- While any pi from the folder is running, `pi update` refuses to start. While an update runs, pi refuses to start.
+
+### Upgrading from v1.5.0-2 or v1.5.0
+
+Older packages do not have `pi update`, so this one upgrade is manual: extract the new package to a new folder, then copy `home/.pi/agent/auth.json` and the `home/.pi/agent/sessions/` folder from the old folder into it. Later releases can be installed with `pi update`.
+
+### Known limitations
+
+- The update needs access to `api.github.com` and `github.com`. Behind a proxy that blocks them, download the package by hand.
+- If the update fails while swapping files (for example, an antivirus locks a file), it moves the old files back and says so. If it cannot move one back, it prints which file is still in `backup/<old version>/`; move that file back by hand.
+- The macOS Intel package was built but not test-run. The macOS binaries are not signed by Apple.
+
 ## v1.5.0-2 - 2026-11-10
 
 Adds Linux and macOS packages. The Windows package works the same as in v1.5.0.

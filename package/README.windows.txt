@@ -9,14 +9,23 @@ Chay
 
 Cau truc
   pi.exe          launcher: dat bien moi truong roi chay app\pi.exe
+  update.bat      tai va cai ban moi nhat vao thu muc nay
+  VERSION         phien ban cua goi nay
   app\            ban pi chinh thuc (khong sua)
   home\           HOME/USERPROFILE/APPDATA/LOCALAPPDATA gia
     .pi\agent\    toan bo cau hinh, auth.json, sessions, plugin
   tmp\            TEMP/TMP
 
 Plugin co san: pi-themes, pi-droid-styling, pi-vcc, pi-cliproxyapi-provider.
-Lenh install / remove / update bi khoa. Muon nang cap: tai zip moi,
-chep home\.pi\agent\auth.json va sessions\ sang ban moi.
+Lenh install / remove bi khoa, plugin co dinh theo tung ban.
+
+Cap nhat
+  - Tat moi cua so pi dang chay tu thu muc nay, roi nhap dup update.bat
+    (hoac: pi.exe update). Chi kiem tra: pi.exe update --check
+  - Tai ban moi tu GitHub Releases, kiem tra chu ky va checksum, roi thay
+    app\, plugin va launcher. Giu nguyen auth.json, sessions\, settings
+    (theme, model...) va config cua plugin.
+  - File cu nam trong backup\<version>\. Xoa di khi ban moi chay on.
 
 Model dung tool "powershell" thay cho bash. Lenh "!" trong editor van can
 bash (Git for Windows); neu may khong co thi lenh "!" bao loi, phan con lai

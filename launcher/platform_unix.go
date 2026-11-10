@@ -9,6 +9,11 @@ import (
 
 const coreName = "pi"
 
+const (
+	exeSuffix    = ""
+	updateScript = "update.sh"
+)
+
 func envKey(name string) string { return name }
 
 func platformEnv(home, tmp string) (map[string]string, []string) {
