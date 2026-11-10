@@ -1,8 +1,30 @@
 # Pinned inputs for the portable build: <dest-file> <url> <checksum>
 # sha256:<hex> or sha512-<base64> (npm integrity format).
-pi-windows-x64.zip https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-windows-x64.zip sha256:12d58a70e80b16ba9f764950b7a42bdeb07959495c0db68396cf2988c0b71af3
-fd.zip https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-pc-windows-msvc.zip sha256:7edac75ef96b7e9a01ebb251a21ee86ea365a09adcfb865f1ec3346a906153b6
-rg.zip https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip sha256:71b2fef860abe467217a538ff31de02f5258807c0129f771846f87bd029aafc5
+# Files named <name>@<target> are only downloaded for that target
+# (windows-x64, linux-x64, linux-arm64, darwin-x64, darwin-arm64).
+
+# pi
+pi@windows-x64 https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-windows-x64.zip sha256:12d58a70e80b16ba9f764950b7a42bdeb07959495c0db68396cf2988c0b71af3
+pi@linux-x64 https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-linux-x64.tar.gz sha256:df870ba0e344cb7b3358d8d8f19397b8b8d225a8669784736ad68a5c2169d53b
+pi@linux-arm64 https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-linux-arm64.tar.gz sha256:5d5711b48600756473682e86360b026b11abf7591e5d112eb411d4da2c100d9a
+pi@darwin-x64 https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-darwin-x64.tar.gz sha256:f41b26cd9a1754abe259e05a421fb33b00936779cb0783c893a6389d1bd2ee0d
+pi@darwin-arm64 https://github.com/earendil-works/pi/releases/download/v1.5.0/pi-darwin-arm64.tar.gz sha256:a9bf0d82d58d2a7d337f4ae4171b5fc9ebffe42509527a831364c4b65adf2cdf
+
+# fd
+fd@windows-x64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-pc-windows-msvc.zip sha256:7edac75ef96b7e9a01ebb251a21ee86ea365a09adcfb865f1ec3346a906153b6
+fd@linux-x64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-unknown-linux-musl.tar.gz sha256:7e2d07fa2b8807642aaec67b7e2972a9fbe4db26fcb340a7372392db42b26694
+fd@linux-arm64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-aarch64-unknown-linux-musl.tar.gz sha256:63ea52cb31586e6d98efa2f06d73d542f16c7d0c4af0f07b579aaf9714cf907a
+fd@darwin-x64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-apple-darwin.tar.gz sha256:0f02e6000a8c896cd254cf4dccc7da1e604e77a32c6783609eed5e4cb07785e3
+fd@darwin-arm64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-aarch64-apple-darwin.tar.gz sha256:81bf98a16d3d7230e4a9123fcede243d71ea31a577113476ed43f1cdf4773162
+
+# ripgrep
+rg@windows-x64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip sha256:71b2fef860abe467217a538ff31de02f5258807c0129f771846f87bd029aafc5
+rg@linux-x64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-unknown-linux-musl.tar.gz sha256:33e15bcf1624b25cdd2a55813a47a2f95dbe126268203e76aa6a585d1e7b149c
+rg@linux-arm64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-aarch64-unknown-linux-musl.tar.gz sha256:800b1e7206afe799dfb5a6901f23147cfaabe0e52210538100f61e86e1740915
+rg@darwin-x64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-apple-darwin.tar.gz sha256:af7825fcc69a2afc7a7aea55fc9af90e26421d8f20fe59df32e233c0b8a231c1
+rg@darwin-arm64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-aarch64-apple-darwin.tar.gz sha256:3750b2e93f37e0c692657da574d7019a101c0084da05a790c83fd335bad973e4
+
+# plugins and the pi-ai copy used by cliproxyapi (platform independent)
 pi-themes.tgz https://codeload.github.com/sting8k/pi-themes/tar.gz/9df900d148a8c910992c205c7e924485f680309e sha256:5958918cfa9ac43075df7ad4f1312ea08cc13ed7b001d0a54bab6f10e3c55e9b
 pi-droid-styling.tgz https://registry.npmjs.org/@sting8k/pi-droid-styling/-/pi-droid-styling-3.0.0.tgz sha512-6J9wRaEKoRZdhPc+4KR9T8ak5zbn+qSEP9ZU0YgFWpJC7v8agLhIzi20dqDaZvQao/mnxbNj9gd9czxomMENRQ==
 pi-vcc.tgz https://registry.npmjs.org/@sting8k/pi-vcc/-/pi-vcc-0.11.2.tgz sha512-KLWHilX6PJo+7961lRDNxY2+X1LPSMSL5a1+yoR0VKVnci0ZwRGysRiF6qsnX0dcCfc2Nbzg3cGW4m69YypjkQ==

@@ -7,7 +7,6 @@
     "./git/github.com/sting8k/pi-vcc",
     "./npm/node_modules/@router-for-me/pi-cliproxyapi-provider"
   ],
-  "defaultTools": ["read", "powershell", "edit", "write"],
   "enableInstallTelemetry": false,
   "hideThinkingBlock": true,
   "defaultThinkingLevel": "high",
