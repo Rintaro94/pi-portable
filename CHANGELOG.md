@@ -2,6 +2,29 @@
 
 Releases are tagged `vX.Y.Z.YYMMDD`: the pi version they ship, then the build date (UTC). A new pi version changes `X.Y.Z`; updates to plugins, packaging or the launcher only change the date. Releases before v1.5.0.261110 used `vX.Y.Z-N`.
 
+## v1.5.2.261111 - 2026-11-11
+
+<!-- upstream:auto -->
+Updates the bundled components. Existing installs (v1.5.0.261110 or later) can run `pi update` (Windows: `update.bat`, Linux and macOS: `update.sh`).
+
+### Downloads
+
+| File | Platform | Shell tool for the model |
+|---|---|---|
+| `PiPortable-windows-x64.zip` | Windows x64 | `powershell` |
+| `PiPortable-linux-x64.tar.gz` | Linux x86_64 (glibc) | `bash` |
+| `PiPortable-linux-arm64.tar.gz` | Linux aarch64 (glibc) | `bash` |
+| `PiPortable-darwin-arm64.tar.gz` | macOS, Apple Silicon | `bash` |
+| `PiPortable-darwin-x64.tar.gz` | macOS, Intel | `bash` |
+
+Check downloads against `SHA256SUMS`. `SHA256SUMS.sig` is its ed25519 signature.
+
+### Changed
+
+- pi 1.5.0 → 1.5.2 ([release notes](https://github.com/earendil-works/pi/releases/tag/v1.5.2)).
+- pi-ai (copy used by pi-cliproxyapi-provider) 1.5.0 → 1.5.2 ([npm](https://www.npmjs.com/package/@earendil-works/pi-ai/v/1.5.2)).
+- pi-telemetry 1.5.0 → 1.5.2 (needed by pi-ai) ([npm](https://www.npmjs.com/package/@earendil-works/pi-telemetry/v/1.5.2)).
+
 ## v1.5.0.261110 - 2026-11-10
 
 Adds `pi update`, which installs a newer release into the same folder and keeps your login and history. pi itself and the plugins are unchanged.

@@ -1,6 +1,6 @@
 # pi-portable
 
-Portable builds of [pi](https://github.com/earendil-works/pi) 1.5.0. Extract, run `pi`, `/login`. All state stays inside the `PiPortable` folder; delete the folder to remove it.
+Portable builds of [pi](https://github.com/earendil-works/pi) 1.5.2. Extract, run `pi`, `/login`. All state stays inside the `PiPortable` folder; delete the folder to remove it.
 
 | Package | Platform | Model shell tool |
 |---|---|---|

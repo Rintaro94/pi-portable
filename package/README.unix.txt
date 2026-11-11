@@ -1,4 +1,4 @@
-Pi Portable (pi 1.5.0, Linux / macOS)
+Pi Portable (pi 1.5.2, Linux / macOS)
 =====================================
 
 Run

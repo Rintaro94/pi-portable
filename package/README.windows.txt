@@ -1,4 +1,4 @@
-Pi Portable (pi 1.5.0, Windows x64)
+Pi Portable (pi 1.5.2, Windows x64)
 ====================================
 
 Chay
