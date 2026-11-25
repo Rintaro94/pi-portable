@@ -4,11 +4,11 @@
 # (windows-x64, linux-x64, linux-arm64, darwin-x64, darwin-arm64).
 
 # pi
-pi@windows-x64 https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-windows-x64.zip sha256:e6adb8cb8c84eca14391ad24b363de9d2be98a89ca3ba3fdee1fa4de32b7f2e8
-pi@linux-x64 https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-linux-x64.tar.gz sha256:811c6f2c9e7aaee252b5404252e556fb713aa209c1f7f924226aa77d4ef70cb5
-pi@linux-arm64 https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-linux-arm64.tar.gz sha256:42805cd5615952fcbbfc9c56b04f8feb84395134952e169a6cdc8d7676975666
-pi@darwin-x64 https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-darwin-x64.tar.gz sha256:f997a088613514ac97d913aeea7642094d84fe6d46854ff7e64e2c12e536dc50
-pi@darwin-arm64 https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-darwin-arm64.tar.gz sha256:56b5e194d485ced555667b8ba3276157a8272e9ecde9e001e428af80985bdd9b
+pi@windows-x64 https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-windows-x64.zip sha256:f5defb6c403ee698f5b3f8886db473e55b78aac670a8ce03620a47f5f0aec57c
+pi@linux-x64 https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-linux-x64.tar.gz sha256:ef77dbe4379b3bdeb425a1e1b862fa3c915c255000dfe4965c98eee96a5765d1
+pi@linux-arm64 https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-linux-arm64.tar.gz sha256:5404547b9739be596d50ae7142c52535899e8e7dd37a7bace9be593e0355b468
+pi@darwin-x64 https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-darwin-x64.tar.gz sha256:5b69cd87c3b00e74cce2d1499df3b7a1ec73632f11abf64696d110f0f4dc4192
+pi@darwin-arm64 https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-darwin-arm64.tar.gz sha256:6429287b7ae98d726ec577815d14fd680e7c587e89ecc5153b4a145dc4adba33
 
 # fd
 fd@windows-x64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-pc-windows-msvc.zip sha256:7edac75ef96b7e9a01ebb251a21ee86ea365a09adcfb865f1ec3346a906153b6
@@ -26,9 +26,9 @@ rg@darwin-arm64 https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/r
 
 # plugins and the pi-ai copy used by cliproxyapi (platform independent)
 pi-themes.tgz https://codeload.github.com/sting8k/pi-themes/tar.gz/9df900d148a8c910992c205c7e924485f680309e sha256:5958918cfa9ac43075df7ad4f1312ea08cc13ed7b001d0a54bab6f10e3c55e9b
-pi-droid-styling.tgz https://registry.npmjs.org/@sting8k/pi-droid-styling/-/pi-droid-styling-3.0.0.tgz sha512-6J9wRaEKoRZdhPc+4KR9T8ak5zbn+qSEP9ZU0YgFWpJC7v8agLhIzi20dqDaZvQao/mnxbNj9gd9czxomMENRQ==
-pi-vcc.tgz https://registry.npmjs.org/@sting8k/pi-vcc/-/pi-vcc-0.11.2.tgz sha512-KLWHilX6PJo+7961lRDNxY2+X1LPSMSL5a1+yoR0VKVnci0ZwRGysRiF6qsnX0dcCfc2Nbzg3cGW4m69YypjkQ==
-pi-cliproxyapi-provider.tgz https://registry.npmjs.org/@router-for-me/pi-cliproxyapi-provider/-/pi-cliproxyapi-provider-1.4.25.tgz sha512-uaeCCbv+2oZPPiTKFSdIYnG2CN6LF9MYP701JlWSGTaumb9lES9rUC4OODgg+NqBZgITXd4Sii2NcujMAnpI9Q==
-pi-ai.tgz https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-1.5.2.tgz sha512-2tWPSnV3qzfiDIY3aWluBag3vC++Vs+VsXt/UquSU5onPMohPih72FUhIhaqmDdMYubOgB3Byl9uF4Vk40JLvQ==
-pi-telemetry.tgz https://registry.npmjs.org/@earendil-works/pi-telemetry/-/pi-telemetry-1.5.2.tgz sha512-m+cumjIqNh1aMISi/9ttcG3ZOwIdriPbz/eMyWmRMJCGa/WcgY1RX4lrb7HvsHhSfI/JUeBESA4nOCr8C3y5ow==
+pi-droid-styling.tgz https://registry.npmjs.org/@sting8k/pi-droid-styling/-/pi-droid-styling-3.0.1.tgz sha512-uU/G0QkHpdnuIKsmpsvb7OPdC+LPZ5zryUNSMaySYxmG/OgkjD7sDHjbc+rW+aqiGv3kLUR6apLf9WyoTSEK8g==
+pi-vcc.tgz https://registry.npmjs.org/@sting8k/pi-vcc/-/pi-vcc-0.12.0.tgz sha512-TMjjzGIJb/JMspafFK40IRHdlnfZOIftzWlhynL+sljTtxqHBH2g7RZ9oC1+nZKO9xbaCJVVb30edK5oQhILfQ==
+pi-cliproxyapi-provider.tgz https://registry.npmjs.org/@router-for-me/pi-cliproxyapi-provider/-/pi-cliproxyapi-provider-1.5.0.tgz sha512-zG5I/dWxQl6rTE8/JpaerMPhuYwlHQOjlmhvvA9qCYdly3vSiz5BVKL9shuClggSsvSb3yqFg4mP3v4dFjO4yw==
+pi-ai.tgz https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-1.6.0.tgz sha512-9hL+eygFDEiFp//cydeUfmFsKmEqpmvsNPb10Y1W8+m5K9O+sx1hMStfu6nukrBD5sl6mP4RykCYBBNEgsVLfw==
+pi-telemetry.tgz https://registry.npmjs.org/@earendil-works/pi-telemetry/-/pi-telemetry-1.6.0.tgz sha512-MNL0TvtpgoSfX7mBLSVgzxTW6yvT8VLEpHvbWnZsIp92FtqVvx+4q9DxWZdX8KvcQqBs0GseAgVnLdVFinjN9Q==
 partial-json.tgz https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA==
