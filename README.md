@@ -1,6 +1,6 @@
 # pi-portable
 
-Portable builds of [pi](https://github.com/earendil-works/pi) 1.5.2. Extract, run `pi`, `/login`. All state stays inside the `PiPortable` folder; delete the folder to remove it.
+Portable builds of [pi](https://github.com/earendil-works/pi) 1.6.0. Extract, run `pi`, `/login`. All state stays inside the `PiPortable` folder; delete the folder to remove it.
 
 | Package | Platform | Model shell tool |
 |---|---|---|
@@ -18,7 +18,7 @@ Download from [Releases](../../releases). Check against `SHA256SUMS`. See [CHANG
 - `update.bat` / `update.sh`: run `pi update`. `VERSION`: the release tag of the package.
 - `app/`: the official pi release for that platform, unmodified.
 - `home/.pi/agent/`: settings (`config/`), fd and rg, and the bundled plugins:
-  pi-themes, pi-droid-styling 3.0.0, pi-vcc 0.11.2, pi-cliproxyapi-provider 1.4.25.
+  pi-themes, pi-droid-styling 3.0.1, pi-vcc 0.12.0, pi-cliproxyapi-provider 1.5.0.
 
 On Linux/macOS extract with `tar xzf` so executable bits are kept. See `package/README.windows.txt` and `package/README.unix.txt` (shipped as `README.txt`) for end-user notes and limits.
 
