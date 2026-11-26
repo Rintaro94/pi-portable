@@ -10,8 +10,9 @@ update
     - pi: the latest GitHub release, taken as soon as it is out. pi-ai must
       exist on npm with the same version; pi-telemetry and partial-json follow
       the versions pi-ai pins.
-    - Plugins on npm, pi-themes (git main), fd and ripgrep (GitHub releases):
-      the newest version that has been public for at least 3 days.
+    - Plugins on npm and pi-themes (git main): the newest version, taken at once.
+    - fd and ripgrep (GitHub releases): the newest version that has been
+      public for at least 3 days.
     The release tag is v<pi version>.<YYMMDD of today, UTC>.
     Writes state=changed|none|skipped and tag=... to $GITHUB_OUTPUT.
 
@@ -44,7 +45,9 @@ SETTINGS = REPO / "config" / "settings.json"
 CHANGELOG = REPO / "CHANGELOG.md"
 PORTABLE_REPO = os.environ.get("GITHUB_REPOSITORY", "Rintaro94/pi-portable")
 
-DELAY = dt.timedelta(days=3)
+# How long a new version must have been public before it is taken.
+PLUGIN_DELAY = dt.timedelta(0)
+TOOL_DELAY = dt.timedelta(days=3)
 TARGETS = ("windows-x64", "linux-x64", "linux-arm64", "darwin-x64", "darwin-arm64")
 AUTO_MARKER = "<!-- upstream:auto -->"
 
@@ -260,9 +263,9 @@ class Report:
     def __init__(self):
         self.waiting, self.warnings = [], []
 
-    def wait(self, what, published):
+    def wait(self, what, published, delay):
         self.waiting.append(f"{what}: published {published:%Y-%m-%d %H:%M} UTC, "
-                            f"eligible from {published + DELAY:%Y-%m-%d %H:%M} UTC")
+                            f"eligible from {published + delay:%Y-%m-%d %H:%M} UTC")
 
 
 def update_pi(lock, cur, rep):
@@ -322,13 +325,13 @@ def update_plugin(lock, lockname, cur, pi_ver, now, rep):
         if not newer(v, cur):
             continue
         t = when(meta["time"][v])
-        if now - t < DELAY:
+        if now - t < PLUGIN_DELAY:
             young.append((sv, v, t))
         elif newer(v, best):
             best = v
     for sv, v, t in sorted(young):
         if newer(v, best):
-            rep.wait(f"{display(lockname)} {v}", t)
+            rep.wait(f"{display(lockname)} {v}", t, PLUGIN_DELAY)
     if best != cur:
         lock.set(lockname, *npm_entry(meta["versions"][best]))
     peers = meta["versions"].get(best, {}).get("peerDependencies") or {}
@@ -350,11 +353,11 @@ def update_themes(lock, cur, now, rep):
         if a["after"] == cur:
             break  # what we have is at least as new as anything eligible
         t = when(a["timestamp"])
-        if now - t >= DELAY:
+        if now - t >= PLUGIN_DELAY:
             chosen = a["after"]
             break
         if a is acts[0]:
-            rep.wait(f"pi-themes {a['after'][:7]}", t)
+            rep.wait(f"pi-themes {a['after'][:7]}", t, PLUGIN_DELAY)
     if chosen != cur:
         url = f"https://codeload.github.com/{THEMES_REPO}/tar.gz/{chosen}"
         lock.set("pi-themes.tgz", url, sha256_url(url))
@@ -370,9 +373,9 @@ def update_tool(lock, prefix, cur, now, rep):
         if r["draft"] or r["prerelease"] or sv is None or sv[3] or not newer(v, cur):
             continue
         t = when(r["published_at"])
-        if now - t < DELAY:
+        if now - t < TOOL_DELAY:
             if best is None or newer(v, best[0]):
-                rep.wait(f"{disp} {v}", t)
+                rep.wait(f"{disp} {v}", t, TOOL_DELAY)
             continue
         if best is None or newer(v, best[0]):
             best = (v, r)
@@ -552,7 +555,7 @@ def cmd_update(args):
     if state != "none":
         summary += [f"### Changes since {base_tag or 'the current lock'}", "", *(lines or ["- (none)"]), ""]
     if rep.waiting:
-        summary += ["### Waiting (public for less than 3 days)", "", *[f"- {w}" for w in rep.waiting], ""]
+        summary += ["### Waiting (fd and ripgrep: public for less than 3 days)", "", *[f"- {w}" for w in rep.waiting], ""]
     if rep.warnings:
         summary += ["### Check before merging", "", *[f"- {w}" for w in rep.warnings], ""]
     summary_text = "\n".join(summary)

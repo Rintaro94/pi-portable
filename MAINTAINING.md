@@ -76,7 +76,8 @@ Thư mục làm việc mặc định là `.work/` (đổi bằng `WORK_DIR=...`)
 Thường không phải làm tay mục 4.1, 4.2, 4.4. Workflow `upstream.yml` chạy mỗi ngày lúc 02:17 UTC (bấm *Run workflow* để chạy ngay) và gọi `scripts/upstream.py update`:
 
 - pi: lấy release mới nhất ngay khi có (bỏ qua prerelease). Đổi theo cùng version `pi-ai`, rồi `pi-telemetry` và `partial-json` theo đúng version pi-ai ghim. Nếu pi-ai cùng version chưa lên npm thì chờ.
-- Plugin npm, pi-themes (nhánh `main`), fd, ripgrep: lấy bản mới nhất **đã public ít nhất 3 ngày**. Bản trẻ hơn được ghi vào mục "Waiting".
+- Plugin npm, pi-themes (nhánh `main`): lấy bản mới nhất ngay khi có, giống pi.
+- fd, ripgrep: lấy bản mới nhất **đã public ít nhất 3 ngày**. Bản trẻ hơn được ghi vào mục "Waiting". Đổi thời gian chờ ở `PLUGIN_DELAY` và `TOOL_DELAY` trong `scripts/upstream.py`.
 - Sửa `sources.lock`, `lastChangelogVersion`, `extensionChangelogVersions`, version trong README, rồi thêm mục `## vX.Y.Z.YYMMDD` vào `CHANGELOG.md`.
 - Commit lên nhánh `upstream/auto` (ghi đè mỗi ngày), build + smoke test, mở hoặc cập nhật PR. PR có mục "Check before merging" khi: `peerDependencies` của plugin không nhận version pi mới, pi-ai thêm dependency, thiếu file cho một target.
 

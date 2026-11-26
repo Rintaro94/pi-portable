@@ -45,7 +45,7 @@ Patches applied at build time:
 ## CI and releases
 
 - `build.yml` builds every package and smoke-tests it on Windows, Linux x64, Linux arm64 and macOS arm64. It runs on pull requests and is called by the two workflows below.
-- `upstream.yml` runs daily at 02:17 UTC (`scripts/upstream.py`). A new pi release is taken at once. Plugins, pi-themes, fd and ripgrep are taken once they have been public for 3 days. If anything changed, it commits to the branch `upstream/auto`, builds it, and opens a pull request with the new tag `v<pi version>.<YYMMDD>` and a CHANGELOG section.
+- `upstream.yml` runs daily at 02:17 UTC (`scripts/upstream.py`). New releases of pi, the plugins and pi-themes are taken at once. fd and ripgrep are taken once they have been public for 3 days. If anything changed, it commits to the branch `upstream/auto`, builds it, and opens a pull request with the new tag `v<pi version>.<YYMMDD>` and a CHANGELOG section.
 - `release.yml` runs on every push to `main`. If the top section of `CHANGELOG.md` names a tag that is not released yet, it builds, waits for approval in the `release` environment, signs `SHA256SUMS` with the environment secret `RELEASE_SIGNING_KEY`, and publishes the GitHub release with the tag.
 
 To release: merge the pull request (or push a commit with a new CHANGELOG section), then approve the waiting deployment in the Actions tab.

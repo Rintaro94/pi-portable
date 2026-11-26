@@ -1,6 +1,6 @@
 # Daily check of pi and the bundled components (scripts/upstream.py).
-# pi is taken as soon as it is released; plugins, pi-themes, fd and ripgrep
-# only once they have been public for 3 days. Changes go to the branch
+# pi, the plugins and pi-themes are taken as soon as they are released;
+# fd and ripgrep only once they have been public for 3 days. Changes go to the branch
 # upstream/auto, are built and smoke-tested, then proposed in a pull request.
 # Merging it starts release.yml, which waits for approval before publishing.
 name: upstream
