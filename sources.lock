@@ -4,11 +4,11 @@
 # (windows-x64, linux-x64, linux-arm64, darwin-x64, darwin-arm64).
 
 # pi
-pi@windows-x64 https://github.com/earendil-works/pi/releases/download/v1.6.1/pi-windows-x64.zip sha256:dbb007c8c50782de1642382fed777c60252aab080f36eef7823324c574c1f3e4
-pi@linux-x64 https://github.com/earendil-works/pi/releases/download/v1.6.1/pi-linux-x64.tar.gz sha256:3c7f00715eb512e165c0da8cad314d73c83b54d5bf7748be4adc618fc8357b68
-pi@linux-arm64 https://github.com/earendil-works/pi/releases/download/v1.6.1/pi-linux-arm64.tar.gz sha256:afde641d6c5904d26960ddb4223bf563b0860cf1a0ebc443b85deff67d048753
-pi@darwin-x64 https://github.com/earendil-works/pi/releases/download/v1.6.1/pi-darwin-x64.tar.gz sha256:5c2df5744c7828cc8b78c5665a3a785cc073130005c711d35017c6a5c419169a
-pi@darwin-arm64 https://github.com/earendil-works/pi/releases/download/v1.6.1/pi-darwin-arm64.tar.gz sha256:d8fd8e24c2a5054ae383d83b26f6eb6f950edf613917e434a52394f44cd4d933
+pi@windows-x64 https://github.com/earendil-works/pi/releases/download/v1.7.0/pi-windows-x64.zip sha256:e98bb945fb7f6917a4bea1956759ce9faf07cf6bdd8c42bfef521eccf2276a17
+pi@linux-x64 https://github.com/earendil-works/pi/releases/download/v1.7.0/pi-linux-x64.tar.gz sha256:42f7ed67e83f727fe51dd2746d50dc45c7d1784159a9518296a282402ac68f4a
+pi@linux-arm64 https://github.com/earendil-works/pi/releases/download/v1.7.0/pi-linux-arm64.tar.gz sha256:cd209cfc90fb94fb4b00ccd785a8d64a4a154f924e52f88febeb6cf36d5c9a24
+pi@darwin-x64 https://github.com/earendil-works/pi/releases/download/v1.7.0/pi-darwin-x64.tar.gz sha256:427d03ed20d14ddeddbe610f56cc7a493f5880f5800e0ecae174284a0a9c4691
+pi@darwin-arm64 https://github.com/earendil-works/pi/releases/download/v1.7.0/pi-darwin-arm64.tar.gz sha256:ff95a9ae160a55bb0417b35031a86c3fa52b39216999fba540b53568f2efc6eb
 
 # fd
 fd@windows-x64 https://github.com/sharkdp/fd/releases/download/v10.5.2/fd-v10.5.2-x86_64-pc-windows-msvc.zip sha256:7edac75ef96b7e9a01ebb251a21ee86ea365a09adcfb865f1ec3346a906153b6
@@ -29,6 +29,6 @@ pi-themes.tgz https://codeload.github.com/sting8k/pi-themes/tar.gz/9df900d148a8c
 pi-droid-styling.tgz https://registry.npmjs.org/@sting8k/pi-droid-styling/-/pi-droid-styling-3.0.1.tgz sha512-uU/G0QkHpdnuIKsmpsvb7OPdC+LPZ5zryUNSMaySYxmG/OgkjD7sDHjbc+rW+aqiGv3kLUR6apLf9WyoTSEK8g==
 pi-vcc.tgz https://registry.npmjs.org/@sting8k/pi-vcc/-/pi-vcc-0.12.1.tgz sha512-h4E6H9YZfb3nTR+Ss7H7bwMYhaGgfZna+9wg5FEBHjnqzv8qtzSJup2J7FznCDjYsNkd1M5qyj4CkHjImiBxDg==
 pi-cliproxyapi-provider.tgz https://registry.npmjs.org/@router-for-me/pi-cliproxyapi-provider/-/pi-cliproxyapi-provider-1.5.0.tgz sha512-zG5I/dWxQl6rTE8/JpaerMPhuYwlHQOjlmhvvA9qCYdly3vSiz5BVKL9shuClggSsvSb3yqFg4mP3v4dFjO4yw==
-pi-ai.tgz https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-1.6.1.tgz sha512-EyorgVyA2s4MxNl7YOapzOpdxrc8HUgxHEIOo8QRMK35P7PCOsSiWzMLf6ixKl3/obkg7I3wGJWHq+FdbUz43g==
-pi-telemetry.tgz https://registry.npmjs.org/@earendil-works/pi-telemetry/-/pi-telemetry-1.6.1.tgz sha512-3gyjVQlVrPwEq7ZCea8++prMwUkuNXM3v/mzTJ9knJAhqrYLxSVAjYzA1iC3KLq8ismmSQIcnFp++qTwQwNToA==
+pi-ai.tgz https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-1.7.0.tgz sha512-iKryMlUYniwWbU7YU0uS7W0+cGd9c6oJ6PzRLOn8j4+1njG4c+BQq1cNawctx/npDqGeOx8ME7Gkgl6K6arPuw==
+pi-telemetry.tgz https://registry.npmjs.org/@earendil-works/pi-telemetry/-/pi-telemetry-1.7.0.tgz sha512-QZkngqktohuFZ2TZuJSXDuUntld4sCMW1tkUPaD4moMEX/z1lwcjycXnd9ChO9HNxm/Jfo+UTiC+N2hkAF9b0w==
 partial-json.tgz https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA==
